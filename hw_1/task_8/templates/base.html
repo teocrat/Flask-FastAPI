@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>
+        {% block title %}
+        {% endblock %}
+    </title>
+</head>
+<body>
+
+    <header>
+        <div>
+            <a href="/main/">Main</a>
+            <a href="/contacts/">Contacts</a>
+            <a href="/about/">About</a>
+        </div>
+    </header>
+
+    {% block content %}
+       Non
+    {% endblock %}
+
+    <footer>
+        <p>© All Rights Reserved.</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>
+        {% block title %}
+        {% endblock %}
+    </title>
+</head>
+<body>
+
+<header>
+    <div>
+        <h1>Clothing store</h1>
+        <ul>
+            <li><a href="/main/">Main</a></li>
+            <li><a href="/cloth/">Cloth</a></li>
+            <li><a href="/shoes/">Shoes</a></li>
+            <li><a href="/jacket/">Jacket</a></li>
+
+
+        </ul>
+    </div>
+</header>
+
+{% block content %}
+Non
+{% endblock %}
+
+<footer>
+    <p>© All Rights Reserved.</p>
+</footer>
+
+</body>
+</html>
