@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>
+        {% block title %}
+        {% endblock %}
+    </title>
+</head>
+<body>
+
+<header>
+    <div class="nav container">
+        <a href="/index">Main</a>
+        <a href="/contacts">Contacts</a>
+        <a href="/about">About</a>
+    </div>
+</header>
+
+<h1 class="header1">This is my site</h1>
+<section class="top_item container">
+    <img src="{{ url_for('static', filename='vinni.png') }}" alt="vinni">
+    <p class="top_text">Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+        Deleniti et, eveniet hic inventore laborum praesentium
+        recusandae rerum vero. Alias enim ipsum iusto maiores quaerat quam quos,
+        sunt temporibus ullam voluptatum.</p>
+</section>
+
+{% block content %}
+Non
+{% endblock %}
+
+<footer class="container">
+    <p class="footer_text">© All Rights Reserved.</p>
+</footer>
+
+</body>
+</html>

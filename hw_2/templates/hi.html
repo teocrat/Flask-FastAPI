@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}
+{{ title }}
+{% endblock %}
+{% block content %}
+<div class="container">
+   <h3>Привет, {{session}}</h3>
+    <a href="/logout"><button>Выйти</button></a>
+
+</div>
+{% endblock %}
