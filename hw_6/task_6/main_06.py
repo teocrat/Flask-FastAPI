@@ -2,7 +2,7 @@ from typing import List, Optional
 from fastapi import FastAPI
 import databases
 import sqlalchemy
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, ValidationError
 
 DATABASE_URL = 'sqlite:///online_store.db'
 database = databases.Database(DATABASE_URL)
@@ -111,100 +111,145 @@ app = FastAPI()
 
 @app.get('/users/', response_model=List[UserIn])
 async def read_users():
-    query = users.select()
-    return await database.fetch_all(query)
+    try:
+        query = users.select()
+        return await database.fetch_all(query)
+    except ValidationError as e:
+        print(e.json())
 
 
 @app.get('/products/', response_model=List[ProductIn])
 async def read_products():
-    query = products.select()
-    return await database.fetch_all(query)
+    try:
+        query = products.select()
+        return await database.fetch_all(query)
+    except ValidationError as e:
+        print(e.json())
 
 
 @app.get('/orders/', response_model=List[OrderIn])
 async def read_orders():
-    query = orders.select()
-    return await database.fetch_all(query)
+    try:
+        query = orders.select()
+        return await database.fetch_all(query)
+    except ValidationError as e:
+        print(e.json())
 
 
 @app.get('/user/{user_id}', response_model=UserIn)
 async def read_user(user_id: int):
-    query = users.select().where(users.c.id == user_id)
-    return await database.fetch_one(query)
+    try:
+        query = users.select().where(users.c.id == user_id)
+        return await database.fetch_one(query)
+    except ValidationError as e:
+        print(e.json())
 
 
 @app.get('/product/{product_id}', response_model=ProductIn)
 async def read_product(product_id: int):
-    query = products.select().where(products.c.id == product_id)
-    return await database.fetch_one(query)
+    try:
+        query = products.select().where(products.c.id == product_id)
+        return await database.fetch_one(query)
+    except ValidationError as e:
+        print(e.json())
 
 
 @app.get('/order/{order_id}', response_model=OrderIn)
 async def read_order(order_id: int):
-    query = orders.select().where(orders.c.id == order_id)
-    return await database.fetch_one(query)
+    try:
+        query = orders.select().where(orders.c.id == order_id)
+        return await database.fetch_one(query)
+    except ValidationError as e:
+        print(e.json())
 
 
 @app.post('/user/', response_model=UserIn)
 async def create_user(user: UserIn):
-    query = users.insert().values(first_name=user.first_name, last_name=user.last_name,
-                                  email=user.email, password=user.password)
-    last_record_id = await database.execute(query)
-    return {**user.dict(), 'id': last_record_id}
+    try:
+        query = users.insert().values(first_name=user.first_name, last_name=user.last_name,
+                                      email=user.email, password=user.password)
+        last_record_id = await database.execute(query)
+        return {**user.dict(), 'id': last_record_id}
+    except ValidationError as e:
+        print(e.json())
 
 
 @app.post('/product/', response_model=ProductIn)
 async def create_product(product: ProductIn):
-    query = products.insert().values(name=product.name, description=product.description, price=product.price)
-    last_record_id = await database.execute(query)
-    return {**product.dict(), 'id': last_record_id}
+    try:
+        query = products.insert().values(name=product.name, description=product.description, price=product.price)
+        last_record_id = await database.execute(query)
+        return {**product.dict(), 'id': last_record_id}
+    except ValidationError as e:
+        print(e.json())
 
 
 @app.post('/order/', response_model=OrderIn)
 async def create_order(order: OrderIn):
-    query = orders.insert().values(id_user=order.id_user, id_product=order.id_product, order_date=order.order_date,
-                                   is_active=order.is_active)
-    last_record_id = await database.execute(query)
-    return {**order.dict(), 'id': last_record_id}
+    try:
+        query = orders.insert().values(id_user=order.id_user, id_product=order.id_product, order_date=order.order_date,
+                                       is_active=order.is_active)
+        last_record_id = await database.execute(query)
+        return {**order.dict(), 'id': last_record_id}
+    except ValidationError as e:
+        print(e.json())
 
 
 @app.put('/user/{user_id', response_model=UserIn)
 async def update_user(user_id: int, new_user: UserIn):
-    query = users.update().where(users.c.id == user_id).values(**new_user.dict())
-    await database.execute(query)
-    return {**new_user.dict(), 'id': user_id}
+    try:
+        query = users.update().where(users.c.id == user_id).values(**new_user.dict())
+        await database.execute(query)
+        return {**new_user.dict(), 'id': user_id}
+    except ValidationError as e:
+        print(e.json())
 
 
 @app.put('/product/{product_id', response_model=ProductIn)
 async def update_product(product_id: int, new_product: ProductIn):
-    query = products.update().where(products.c.id == product_id).values(**new_product.dict())
-    await database.execute(query)
-    return {**new_product.dict(), 'id': product_id}
+    try:
+        query = products.update().where(products.c.id == product_id).values(**new_product.dict())
+        await database.execute(query)
+        return {**new_product.dict(), 'id': product_id}
+    except ValidationError as e:
+        print(e.json())
 
 
 @app.put('/order/{order_id', response_model=OrderIn)
 async def update_order(order_id: int, new_order: OrderIn):
-    query = orders.update().where(orders.c.id == order_id).values(**new_order.dict())
-    await database.execute(query)
-    return {**new_order.dict(), 'id': order_id}
+    try:
+        query = orders.update().where(orders.c.id == order_id).values(**new_order.dict())
+        await database.execute(query)
+        return {**new_order.dict(), 'id': order_id}
+    except ValidationError as e:
+        print(e.json())
 
 
-@app.delete('/delete/{user_id}')
+@app.delete('/delete_user/{user_id}')
 async def delete_user(user_id: int):
-    query = users.delete().where(users.c.id == user_id)
-    await database.execute(query)
-    return {'message': 'User deleted'}
+    try:
+        query = users.delete().where(users.c.id == user_id)
+        await database.execute(query)
+        return {'message': 'User deleted'}
+    except ValidationError as e:
+        print(e.json())
 
 
-@app.delete('/delete/{product_id}')
+@app.delete('/delete_product/{product_id}')
 async def delete_product(product_id: int):
-    query = products.delete().where(products.c.id == product_id)
-    await database.execute(query)
-    return {'message': 'Product deleted'}
+    try:
+        query = products.delete().where(products.c.id == product_id)
+        await database.execute(query)
+        return {'message': 'Product deleted'}
+    except ValidationError as e:
+        print(e.json())
 
 
-@app.delete('/delete/{order_id}')
+@app.delete('/delete_order/{order_id}')
 async def delete_order(order_id: int):
-    query = orders.delete().where(orders.c.id == order_id)
-    await database.execute(query)
-    return {'message': 'Order deleted'}
+    try:
+        query = orders.delete().where(orders.c.id == order_id)
+        await database.execute(query)
+        return {'message': 'Order deleted'}
+    except ValidationError as e:
+        print(e.json())

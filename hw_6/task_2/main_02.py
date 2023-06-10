@@ -2,8 +2,7 @@ from typing import List, Optional
 from fastapi import FastAPI
 import databases
 import sqlalchemy
-from pydantic import BaseModel, Field, EmailStr
-
+from pydantic import BaseModel, Field, EmailStr, ValidationError
 
 DATABASE_URL = 'sqlite:///mydb_2.db'
 database = databases.Database(DATABASE_URL)
@@ -32,7 +31,7 @@ class UserIn(BaseModel):
 
 
 class User(BaseModel):
-    id: int = Field(... , alias='user_id')
+    id: int = Field(..., alias='user_id')
     first_name: str = Field(min_length=2)
     last_name: str = Field(min_length=2)
     birthday: Optional[str] = Field("YYYY-MM-DD")
@@ -54,33 +53,48 @@ app = FastAPI()
 
 @app.post('/users/', response_model=UserIn)
 async def create_user(user: UserIn):
-    query = users.insert().values(first_name=user.first_name, last_name=user.last_name,
-                                  email=user.email, birthday=user.birthday, address=user.address)
-    last_record_id = await database.execute(query)
-    return {**user.dict(), 'id': last_record_id}
+    try:
+        query = users.insert().values(first_name=user.first_name, last_name=user.last_name,
+                                      email=user.email, birthday=user.birthday, address=user.address)
+        last_record_id = await database.execute(query)
+        return {**user.dict(), 'id': last_record_id}
+    except ValidationError as e:
+        print(e.json())
 
 
 @app.get('/users/', response_model=List[UserIn])
 async def read_users():
-    query = users.select()
-    return await database.fetch_all(query)
+    try:
+        query = users.select()
+        return await database.fetch_all(query)
+    except ValidationError as e:
+        print(e.json())
 
 
-@app.get('/user/{user_id}', response_model=User)
+@app.get('/user/{user_id}', response_model=UserIn)
 async def read_user(user_id: int):
-    query = users.select().where(users.c.id == user_id)
-    return await database.fetch_one(query)
+    try:
+        query = users.select().where(users.c.id == user_id)
+        return await database.fetch_one(query)
+    except ValidationError as e:
+        print(e.json())
 
 
 @app.put('/user/{user_id', response_model=UserIn)
 async def update_user(user_id: int, new_user: UserIn):
-    query = users.update().where(users.c.id == user_id).values(**new_user.dict())
-    await database.execute(query)
-    return {**new_user.dict(), 'id': user_id}
+    try:
+        query = users.update().where(users.c.id == user_id).values(**new_user.dict())
+        await database.execute(query)
+        return {**new_user.dict(), 'id': user_id}
+    except ValidationError as e:
+        print(e.json())
 
 
 @app.delete('/delete/{user_id}')
 async def delete_user(user_id: int):
-    query = users.delete().where(users.c.id == user_id)
-    await database.execute(query)
-    return {'message': 'User deleted'}
+    try:
+        query = users.delete().where(users.c.id == user_id)
+        await database.execute(query)
+        return {'message': 'User deleted'}
+    except ValidationError as e:
+        print(e.json())
